@@ -37,6 +37,16 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0-beta01'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0-alpha02'
 
+    // room db
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    //paging lib
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+    // alternatively - without Android dependencies for testing
+    testImplementation "androidx.paging:paging-common-ktx:$paging_version" // For Kotlin use paging-common-ktx
+
+
     compileOnly("com.squareup.inject:assisted-inject-annotations-dagger2:0.3.3")
     kapt("com.squareup.inject:assisted-inject-processor-dagger2:0.3.3")
 
@@ -46,6 +56,9 @@ dependencies {
     implementation 'com.google.dagger:dagger:2.13'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
     kapt 'com.google.dagger:dagger-compiler:2.13'
+
+
+
     // JSON Converter
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
