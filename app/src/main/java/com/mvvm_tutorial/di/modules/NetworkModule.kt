@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-const val BASE_URL = "https://api.myjson.com/bins/"
+const val BASE_URL = "https://mock-api-mobile.dev.lalamove.com/"
 
 @Module
 class NetworkModule {

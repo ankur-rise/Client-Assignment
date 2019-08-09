@@ -36,11 +36,7 @@ class UserProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.user!!.observe(viewLifecycleOwner,
-            androidx.lifecycle.Observer<User> {
-                val username = (R.id.tv_username) as TextView
-                username.text = it.name
-            })
+
 
     }
 
