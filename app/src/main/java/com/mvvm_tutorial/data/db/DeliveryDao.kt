@@ -1,6 +1,7 @@
 package com.mvvm_tutorial.data.db
 
 import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -15,7 +16,7 @@ interface DeliveryDao  {
     fun insertAll (items:List<DeliveryItemDataModel>)
 
     @RawQuery(observedEntities = arrayOf(DeliveryItemDataModel::class))
-    fun get(query: SupportSQLiteQuery): LiveData<List<DeliveryItemDataModel>>
+    fun get(query: SupportSQLiteQuery): DataSource.Factory<Int, DeliveryItemDataModel>
 
 
 }

@@ -1,7 +1,7 @@
 package com.mvvm_tutorial.di.components
 
 import com.mvvm_tutorial.di.modules.*
-import com.mvvm_tutorial.ui.DetailActivity
+import com.mvvm_tutorial.ui.DeliveryListActivity
 import dagger.Component
 import javax.inject.Singleton
 
@@ -9,6 +9,6 @@ import javax.inject.Singleton
 @Singleton
 interface IActivityComponent {
 
-    fun inject(activity: DetailActivity)
+    fun inject(activity: DeliveryListActivity)
 
 }
