@@ -24,6 +24,10 @@ class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: Deliv
         queryLiveData.postValue("")
     }
 
+    fun refreshData() {
+
+    }
+
 
 }
 

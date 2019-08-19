@@ -52,8 +52,8 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
                 call: Call<List<DeliveryItemDataModel>>,
                 response: Response<List<DeliveryItemDataModel>>
             ) {
-                val dataDelivery = response.body()
-                if (dataDelivery != null)
+                val dataDelivery:List<DeliveryItemDataModel>? = response.body()
+                if (dataDelivery != null && dataDelivery.isNotEmpty())
                     thread {
                         dao.insertAll(dataDelivery)
                         lastRequestedPage++
@@ -61,13 +61,13 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
 
                     }
                 else {
-                    _networkErrors.value = "Not abe to fetch latest data"
+                    _networkErrors.value = "You have reached to the end of list."
                 }
 
             }
 
             override fun onFailure(call: Call<List<DeliveryItemDataModel>>, t: Throwable) {
-                _networkErrors.value = "Not abe to fetch latest data"
+                _networkErrors.value = "Not able to fetch latest data"
             }
         })
     }
