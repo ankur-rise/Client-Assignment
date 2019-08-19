@@ -37,7 +37,7 @@ class DeliveryAdapter : PagedListAdapter<DeliveryItemDataModel, DeliveryAdapter.
 
             fun bindTo(item: DeliveryItemDataModel?) {
                 tvDesc.text = item?.description
-                imageView.setImageURI(Uri.parse(item?.imageUrl))
+                imageView.setImageURI(Uri.parse(item?.imageUrl?:""))
             }
 
         }

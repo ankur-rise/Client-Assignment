@@ -2,6 +2,7 @@ package com.mvvm_tutorial.ui
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -41,11 +42,20 @@ class DeliveryListActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.loadUser().observe(this, Observer<PagedList<DeliveryItemDataModel>> {
+        viewModel.resultLiveData.observe(this, Observer<PagedList<DeliveryItemDataModel>> {
             Log.d("DeliveryListActivity", "list: ${it?.size}")
 //            showEmptyList(it?.size == 0)
             adapter.submitList(it)
         })
+
+        viewModel.errLiveData.observe(this, Observer {
+
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+
+        })
+
+        viewModel.loadUser()
+
         recyclerView.adapter = adapter
     }
 
