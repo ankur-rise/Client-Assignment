@@ -1,6 +1,7 @@
 package com.mvvm_tutorial.data.repository
 
 import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.mvvm_tutorial.data.IDeliveryRepo
 import com.mvvm_tutorial.data.RepoBoundaryCallback
 import com.mvvm_tutorial.data.db.DeliveryDao
@@ -22,16 +23,20 @@ class DeliveryRepo @Inject constructor(
         val callback = RepoBoundaryCallback(api, dao)
         val networkErr = callback.networkErrors
 
-        val pagedList = LivePagedListBuilder(dataSource, DATABASE_PAGE_SIZE).setBoundaryCallback(callback).build()
+        val pagedListConfig = PagedList.Config.Builder()
+            .setEnablePlaceholders(false)
+            .setInitialLoadSizeHint(INITIAL_LOAD_SIZE_HINT)
+            .setPageSize(DATABASE_PAGE_SIZE)
+            .build()
+
+        val pagedList = LivePagedListBuilder(dataSource, pagedListConfig).setBoundaryCallback(callback).build()
         return RepoResult(pagedList, networkErr)
     }
 
 
-
-
-
     companion object {
-        private const val DATABASE_PAGE_SIZE = 5
+        private const val DATABASE_PAGE_SIZE = 20
+        const val INITIAL_LOAD_SIZE_HINT = 20
     }
 }
 

@@ -13,7 +13,7 @@ interface DeliveryDao  {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll (items:List<DeliveryItemDataModel>)
 
-    @Query("Select * from DeliveryItemDataModel")
+    @Query("Select * from DeliveryItemDataModel ORDER BY id ASC")
     fun get(): DataSource.Factory<Int, DeliveryItemDataModel>
 
 

@@ -1,7 +1,7 @@
 package com.mvvm_tutorial.ui.adapter
 
-import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +28,9 @@ class DeliveryAdapter : PagedListAdapter<DeliveryItemDataModel, DeliveryAdapter.
         }
 
         override fun getItemCount(): Int {
-            return super.getItemCount()
+            val itemCount = super.getItemCount()
+            Log.i(DeliveryAdapter::class.java.simpleName, itemCount.toString())
+            return itemCount
         }
 
         class DeliveryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
