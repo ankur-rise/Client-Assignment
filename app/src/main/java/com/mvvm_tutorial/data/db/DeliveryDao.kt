@@ -16,5 +16,8 @@ interface DeliveryDao  {
     @Query("Select * from DeliveryItemDataModel ORDER BY id ASC")
     fun get(): DataSource.Factory<Int, DeliveryItemDataModel>
 
+    @Query("DELETE FROM DeliveryItemDataModel")
+    fun clearTable()
+
 
 }

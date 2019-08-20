@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: DeliveryRepo) : ViewModel() {
 
-    private val queryLiveData = MutableLiveData<String>()
+    private val queryLiveData = MutableLiveData<Unit>()
     private val repoResult: LiveData<RepoResult> = Transformations.map(queryLiveData) {
         deliveryRepo.getDeliveryItems()
     }
@@ -21,10 +21,15 @@ class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: Deliv
     val resultLiveData:LiveData<PagedList<DeliveryItemDataModel>> = Transformations.switchMap(repoResult){it.repoResult}
     val errLiveData:LiveData<String> = Transformations.switchMap(repoResult){it.networkErr}
     fun loadUser() {
-        queryLiveData.postValue("")
+        queryLiveData.postValue(Unit)
     }
 
+    val errRefreshLiveData:MutableLiveData<String> = MutableLiveData()
     fun refreshData() {
+           deliveryRepo.refreshDeliveryItems {
+                errRefreshLiveData.value = it
+           }
+
 
     }
 

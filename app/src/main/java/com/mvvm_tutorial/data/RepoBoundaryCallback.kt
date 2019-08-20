@@ -30,7 +30,7 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
 
     override fun onZeroItemsLoaded() {
         Log.i(TAG, "onZeroItemsLoaded")
-        fetchDataFromServer(lastRequestedPage*NETWORK_PAGE_SIZE, NETWORK_PAGE_SIZE)
+        fetchDataFromServer(0, NETWORK_PAGE_SIZE)
 
     }
 

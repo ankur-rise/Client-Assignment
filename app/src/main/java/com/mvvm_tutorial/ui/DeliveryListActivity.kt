@@ -2,6 +2,7 @@ package com.mvvm_tutorial.ui
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -21,8 +22,8 @@ import javax.inject.Inject
 
 class DeliveryListActivity : AppCompatActivity() {
 
-    @Inject
-    private lateinit var factory: ViewModelFactory
+    @Inject // cannot be private as dagger required this variable to access
+    lateinit var factory: ViewModelFactory
 
     private val viewModel: DeliveryItemsViewModel by viewModels { factory }
     private lateinit var recyclerView: RecyclerView
@@ -55,7 +56,7 @@ class DeliveryListActivity : AppCompatActivity() {
         viewModel.resultLiveData.observe(this, Observer<PagedList<DeliveryItemDataModel>> {
             Log.d("DeliveryListActivity", "list: ${it?.size}")
             if (refreshLayout.isRefreshing) {
-                refreshLayout.setRefreshing(false)
+                refreshLayout.isRefreshing = false
             }
             adapter.submitList(it)
         })
@@ -66,16 +67,30 @@ class DeliveryListActivity : AppCompatActivity() {
 
         })
 
+        viewModel.errRefreshLiveData.observe(this, object :Observer<String>{
+            override fun onChanged(str: String?) {
+                if (refreshLayout.isRefreshing) {
+                    refreshLayout.isRefreshing = false
+                }
+                Toast.makeText(this@DeliveryListActivity, str, Toast.LENGTH_LONG).show()
+            }
+
+        })
+
         viewModel.loadUser()
 
         recyclerView.adapter = adapter
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+         menuInflater.inflate(R.menu.refresh_menu, menu)
+        return true
+    }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 
         when (item?.itemId) {
-            R.menu.refresh_menu -> {
+            R.id.menu_refresh -> {
                 refreshLayout.isRefreshing = true
                 refreshData()
                 return true
