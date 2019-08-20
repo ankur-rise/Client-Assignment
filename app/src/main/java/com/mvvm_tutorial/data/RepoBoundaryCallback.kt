@@ -18,9 +18,6 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
     private val TAG:String = RepoBoundaryCallback::class.java.simpleName
     private var isRequestInProgress:Boolean = false
 
-    // keep the last requested page.
-    // When the request is successful, increment the page number.
-    private var lastRequestedPage = 0
 
     private val _networkErrors = MutableLiveData<String>()
     // LiveData of network errors.
@@ -40,7 +37,7 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
     }
 
     private fun fetchDataFromServer(offset: Int, limit: Int) {
-        if( isRequestInProgress) return
+        if(isRequestInProgress) return
 
         isRequestInProgress = true
         val map = HashMap<String, Int>()
@@ -53,14 +50,15 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
                 response: Response<List<DeliveryItemDataModel>>
             ) {
                 val dataDelivery:List<DeliveryItemDataModel>? = response.body()
-                if (dataDelivery != null && dataDelivery.isNotEmpty())
+                if (dataDelivery != null && dataDelivery.isNotEmpty()) {
                     thread {
                         dao.insertAll(dataDelivery)
-                        lastRequestedPage++
-                        isRequestInProgress=false
-
+                        isRequestInProgress = false
                     }
+
+                }
                 else {
+                    isRequestInProgress = false
                     _networkErrors.value = "You have reached to the end of list."
                 }
 
@@ -68,6 +66,7 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
 
             override fun onFailure(call: Call<List<DeliveryItemDataModel>>, t: Throwable) {
                 _networkErrors.value = "Not able to fetch latest data"
+                isRequestInProgress = false
             }
         })
     }

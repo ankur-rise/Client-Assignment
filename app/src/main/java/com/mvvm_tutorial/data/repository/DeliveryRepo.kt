@@ -58,7 +58,7 @@ class DeliveryRepo @Inject constructor(
 
                     }
                 else {
-                    onError("End of the list!")
+                    onError("Server error!")
                 }
 
             }
