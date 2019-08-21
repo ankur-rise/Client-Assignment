@@ -42,7 +42,7 @@ class DeliveryDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         val bundle = intent.extras
-        val model = bundle.getSerializable(KEY_DELIVERY_ITEM) as DeliveryItemDataModel
+        val model = bundle.getParcelable(KEY_DELIVERY_ITEM) as DeliveryItemDataModel
 
 
         viewModel.loadData(model)

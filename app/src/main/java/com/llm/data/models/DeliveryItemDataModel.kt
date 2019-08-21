@@ -1,10 +1,13 @@
 package com.llm.data.models
 
+import android.os.Parcelable
 import androidx.room.*
-import java.io.Serializable
+import androidx.versionedparcelable.VersionedParcelize
+import kotlinx.android.parcel.Parcelize
 
-@Entity
+
+@Entity @Parcelize
 data class DeliveryItemDataModel constructor(
     @PrimaryKey val id:Int, val description:String, @ColumnInfo(name = "image_url") val imageUrl:String,
     @Embedded val location:LatLongDataModel
-) : Serializable
+) : Parcelable

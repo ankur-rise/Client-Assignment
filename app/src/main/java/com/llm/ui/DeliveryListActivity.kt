@@ -27,7 +27,7 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
     override fun onSelect(model: DeliveryItemDataModel) {
         val intent = Intent(this, DeliveryDetailActivity::class.java).apply {
             val bundle = Bundle().apply {
-                putSerializable(KEY_DELIVERY_ITEM, model)
+                putParcelable(KEY_DELIVERY_ITEM, model)
             }
             putExtras(bundle)
         }
@@ -46,7 +46,7 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_delivery_list)
-
+        supportActionBar?.title = getString(R.string.deliveries)
 
         val component = Injector.inject()
         component.inject(this)

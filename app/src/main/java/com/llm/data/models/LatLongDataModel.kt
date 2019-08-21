@@ -1,6 +1,7 @@
 package com.llm.data.models
 
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-
-data class LatLongDataModel constructor(val lat:Double, val lng:Double, val address:String):Serializable
+@Parcelize
+data class LatLongDataModel constructor(val lat:Double, val lng:Double, val address:String):Parcelable
