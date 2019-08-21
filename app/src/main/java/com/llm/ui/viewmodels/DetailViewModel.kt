@@ -5,8 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.llm.data.models.DeliveryItemDataModel
+import javax.inject.Inject
 
-class DetailViewModel : ViewModel() {
+class DetailViewModel @Inject constructor() : ViewModel() {
 
     private val _dataModel: MutableLiveData<DeliveryItemDataModel> = MutableLiveData()
     val description: LiveData<String> = Transformations.map(_dataModel) { it.description }

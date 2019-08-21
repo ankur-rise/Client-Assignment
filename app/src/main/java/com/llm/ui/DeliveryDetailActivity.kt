@@ -1,14 +1,9 @@
 package com.llm.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.TextView
-import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.facebook.drawee.view.SimpleDraweeView
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -19,17 +14,23 @@ import com.llm.R
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.models.LatLongDataModel
 import com.llm.databinding.ActivityDeliveyDetailBinding
+import com.llm.di.Injector
 import com.llm.ui.viewmodels.DetailViewModel
+import javax.inject.Inject
 
 class DeliveryDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var coordinates:LatLongDataModel
 
-    private val viewModel:DetailViewModel by lazy { ViewModelProviders.of(this).get(DetailViewModel::class.java)}
+    @Inject                    //by lazy { ViewModelProviders.of(this).get(DetailViewModel::class.java)}
+    lateinit var viewModel:DetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val component = Injector.inject()
+        component.inject(this)
 
         val dataBinding: ActivityDeliveyDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_delivey_detail)
         dataBinding.lifecycleOwner = this

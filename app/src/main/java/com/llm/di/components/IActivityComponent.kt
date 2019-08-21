@@ -1,6 +1,7 @@
 package com.llm.di.components
 
 import com.llm.di.modules.*
+import com.llm.ui.DeliveryDetailActivity
 import com.llm.ui.DeliveryListActivity
 import dagger.Component
 import javax.inject.Singleton
@@ -10,5 +11,6 @@ import javax.inject.Singleton
 interface IActivityComponent {
 
     fun inject(activity: DeliveryListActivity)
+    fun inject(activity: DeliveryDetailActivity)
 
 }
