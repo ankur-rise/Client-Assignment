@@ -1,43 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:fresco="http://schemas.android.com/apk/res-auto"
-              android:layout_height="match_parent"
-              android:layout_width="match_parent"
-              android:orientation="vertical"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:fresco="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
 >
+    <data>
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="300dp"
-              android:id="@+id/map"
-              tools:context=".ui.DeliveryDetailActivity"
-              android:name="com.google.android.gms.maps.SupportMapFragment"/>
+        <variable name="viewModel" type="com.llm.ui.viewmodels.DetailViewModel"/>
+
+    </data>
 
 
-    <LinearLayout android:id="@+id/ll_detail"
-                  android:orientation="horizontal"
+    <LinearLayout
+                  android:layout_height="match_parent"
                   android:layout_width="match_parent"
-                  android:layout_height="wrap_content">
+                  android:orientation="vertical"
+    >
 
-        <com.facebook.drawee.view.SimpleDraweeView
-                android:id="@+id/iv"
-                android:layout_width="@dimen/image_size"
-                android:layout_height="@dimen/image_size"
-                fresco:placeholderImage="@drawable/place_holder"
-                fresco:placeholderImageScaleType="centerCrop"/>
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  android:layout_width="match_parent"
+                  android:layout_height="300dp"
+                  android:id="@+id/map"
+                  tools:context=".ui.DeliveryDetailActivity"
+                  android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
-        <TextView
-                android:id="@+id/tv_desc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/padding_list_item_parent"
-                android:paddingStart="@dimen/padding_list_item_parent"
-                android:paddingRight="@dimen/padding_list_item_parent"
-                android:paddingEnd="@dimen/padding_list_item_parent"
-        />
+
+        <LinearLayout android:id="@+id/ll_detail"
+                      android:orientation="horizontal"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+
+                      android:layout_marginTop="@dimen/activity_vertical_margin">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/iv"
+                    android:layout_width="@dimen/image_size"
+                    android:layout_height="@dimen/image_size"
+                    app:uri = "@{viewModel.imageUrl}"
+                    fresco:placeholderImage="@drawable/place_holder"
+                    fresco:placeholderImageScaleType="centerCrop"/>
+
+            <TextView
+                    android:id="@+id/tv_desc"
+                    style="@style/custom_text.bold"
+                    android:padding="@dimen/padding_list_item_parent"
+                    android:text="@{viewModel.description}"
+
+            />
+
+        </LinearLayout>
+
 
     </LinearLayout>
-
-
-</LinearLayout>
+</layout>

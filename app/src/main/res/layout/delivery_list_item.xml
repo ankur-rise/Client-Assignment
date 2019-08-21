@@ -10,16 +10,13 @@
             android:layout_width="@dimen/image_size"
             android:layout_height="@dimen/image_size"
             fresco:placeholderImage="@drawable/place_holder"
-            fresco:placeholderImageScaleType="centerCrop" />
+            fresco:placeholderImageScaleType="centerCrop"/>
 
     <TextView
             android:id="@+id/tv_desc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/padding_list_item_parent"
-            android:paddingStart="@dimen/padding_list_item_parent"
-            android:paddingRight="@dimen/padding_list_item_parent"
-            android:paddingEnd="@dimen/padding_list_item_parent"
+            style="@style/custom_text.bold"
+            android:padding="@dimen/padding_list_item_parent"
+
     />
 
 </LinearLayout>

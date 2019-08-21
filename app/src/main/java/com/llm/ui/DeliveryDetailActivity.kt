@@ -3,6 +3,10 @@ package com.llm.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.facebook.drawee.view.SimpleDraweeView
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -14,27 +18,33 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.llm.R
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.models.LatLongDataModel
+import com.llm.databinding.ActivityDeliveyDetailBinding
+import com.llm.ui.viewmodels.DetailViewModel
 
 class DeliveryDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var coordinates:LatLongDataModel
 
+    private val viewModel:DetailViewModel by lazy { ViewModelProviders.of(this).get(DetailViewModel::class.java)}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_delivey_detail)
+
+        val dataBinding: ActivityDeliveyDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_delivey_detail)
+        dataBinding.lifecycleOwner = this
+        dataBinding.viewModel = viewModel
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
         val bundle = intent.extras
         val model = bundle.getSerializable(KEY_DELIVERY_ITEM) as DeliveryItemDataModel
 
-        val textView:TextView =  findViewById(R.id.tv_desc)
-        textView.text = model.description
 
-        val iv:SimpleDraweeView  = findViewById(R.id.iv)
-        iv.setImageURI(model.imageUrl?:"")
+        viewModel.loadData(model)
 
         coordinates = model.location
 

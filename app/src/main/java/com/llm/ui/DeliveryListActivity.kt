@@ -47,6 +47,7 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
 
         setContentView(R.layout.activity_delivery_list)
 
+
         val component = Injector.inject()
         component.inject(this)
         recyclerView = findViewById(R.id.rl)
