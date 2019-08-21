@@ -1,5 +1,6 @@
 package com.llm.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -20,7 +21,18 @@ import com.llm.ui.viewmodels.DeliveryItemsViewModel
 import com.llm.ui.viewmodels.factory.ViewModelFactory
 import javax.inject.Inject
 
-class DeliveryListActivity : AppCompatActivity() {
+const val KEY_DELIVERY_ITEM = "key_delivery_item"
+
+class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectListener {
+    override fun onSelect(model: DeliveryItemDataModel) {
+        val intent = Intent(this, DeliveryDetailActivity::class.java).apply {
+            val bundle = Bundle().apply {
+                putSerializable(KEY_DELIVERY_ITEM, model)
+            }
+            putExtras(bundle)
+        }
+        startActivity(intent)
+    }
 
     @Inject // cannot be private as dagger required this variable to access
     lateinit var factory: ViewModelFactory
@@ -43,7 +55,7 @@ class DeliveryListActivity : AppCompatActivity() {
 
         refreshLayout = findViewById(R.id.swipe_refresh)
         refreshLayout.setOnRefreshListener { refreshData() }
-
+        adapter.itemSelectListener = this
 
     }
 
@@ -67,7 +79,7 @@ class DeliveryListActivity : AppCompatActivity() {
 
         })
 
-        viewModel.errRefreshLiveData.observe(this, object :Observer<String>{
+        viewModel.errRefreshLiveData.observe(this, object : Observer<String> {
             override fun onChanged(str: String?) {
                 if (refreshLayout.isRefreshing) {
                     refreshLayout.isRefreshing = false
@@ -83,7 +95,7 @@ class DeliveryListActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-         menuInflater.inflate(R.menu.refresh_menu, menu)
+        menuInflater.inflate(R.menu.refresh_menu, menu)
         return true
     }
 

@@ -15,13 +15,16 @@ import com.llm.data.models.DeliveryItemDataModel
 
 class DeliveryAdapter : PagedListAdapter<DeliveryItemDataModel, DeliveryAdapter.DeliveryViewHolder>(DIFF_CALLBACK) {
 
+    var itemSelectListener:OnItemSelectListener?=null
+
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeliveryViewHolder {
             return DeliveryViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.delivery_list_item, parent, false))
+
         }
 
         override fun onBindViewHolder(holder: DeliveryViewHolder, position: Int) {
-            val concert: DeliveryItemDataModel? = getItem(position)
+            val concert: DeliveryItemDataModel = getItem(position)!!
 
             // Note that "concert" is a placeholder if it's null.
             holder.bindTo(concert)
@@ -33,11 +36,17 @@ class DeliveryAdapter : PagedListAdapter<DeliveryItemDataModel, DeliveryAdapter.
             return itemCount
         }
 
-        class DeliveryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        inner class DeliveryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private var tvDesc: TextView = itemView.findViewById(R.id.tv_desc)
-            private var imageView: SimpleDraweeView = itemView.findViewById(R.id.iv)
+            private var imageView: SimpleDraweeView = itemView.findViewById(R.id.iv) as SimpleDraweeView
 
-            fun bindTo(item: DeliveryItemDataModel?) {
+
+            fun bindTo(item: DeliveryItemDataModel) {
+                itemView.setOnClickListener {
+                    itemSelectListener!!.onSelect(item)
+
+                }
+
                 tvDesc.text = item?.description
                 imageView.setImageURI(Uri.parse(item?.imageUrl?:""))
             }
@@ -61,5 +70,9 @@ class DeliveryAdapter : PagedListAdapter<DeliveryItemDataModel, DeliveryAdapter.
                 ) = oldDelivery == newDelivery
             }
         }
+
+    interface OnItemSelectListener {
+        fun onSelect(model: DeliveryItemDataModel)
+    }
 
     }
