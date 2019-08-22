@@ -8,11 +8,13 @@ import com.llm.data.db.DeliveryDao
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.network.Apis
 import com.llm.data.network.CallbackWithRetry
+import com.llm.ui.utils.NETWORK_ERR_MESSAGE
+import com.llm.ui.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Response
 import kotlin.concurrent.thread
 
-class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDao) : PagedList.BoundaryCallback<DeliveryItemDataModel>() {
+class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDao, private val utils:NetworkUtils) : PagedList.BoundaryCallback<DeliveryItemDataModel>() {
     private val TAG:String = CustomBoundaryCallback::class.java.simpleName
     private var isRequestInProgress:Boolean = false
 
@@ -35,6 +37,10 @@ class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDa
     }
 
     private fun fetchDataFromServer(offset: Int, limit: Int) {
+        if(!utils.isConnectedToInternet()) {
+            _networkErrors.value = NETWORK_ERR_MESSAGE
+            return
+        }
         if(isRequestInProgress) return
 
         isRequestInProgress = true
