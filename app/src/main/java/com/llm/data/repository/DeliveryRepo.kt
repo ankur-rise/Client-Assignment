@@ -10,25 +10,27 @@ import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.models.RepoResult
 import com.llm.data.network.Apis
 import com.llm.data.network.CallbackWithRetry
+import com.llm.di.qualifiers.SingleThreadExecutor
 import com.llm.ui.utils.NETWORK_ERR_MESSAGE
 import com.llm.ui.utils.NetworkUtils
 import org.jetbrains.annotations.NotNull
 import retrofit2.Call
 import retrofit2.Response
+import java.util.concurrent.Executor
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.concurrent.thread
 
 @Singleton
 class DeliveryRepo @Inject constructor(
     @NotNull private val api: Apis,
     private val dao: DeliveryDao,
-    private val networkUtils: NetworkUtils
+    private val networkUtils: NetworkUtils,
+    @SingleThreadExecutor private val executor: Executor
 ) : IDeliveryRepo {
 
     override fun getDeliveryItems(): RepoResult {
         val dataSourceFactory = dao.get()
-        val callback = CustomBoundaryCallback(api, dao, networkUtils)
+        val callback = CustomBoundaryCallback(api, dao, networkUtils, executor)
         val networkErr = callback.networkErrors
 
         val pagedListConfig = PagedList.Config.Builder()
@@ -43,7 +45,7 @@ class DeliveryRepo @Inject constructor(
 
 
     override fun refreshDeliveryItems(onError: (errMsg: String) -> Unit) {
-        if(!networkUtils.isConnectedToInternet()){
+        if (!networkUtils.isConnectedToInternet()) {
             onError(NETWORK_ERR_MESSAGE)
             return
         }
@@ -58,11 +60,9 @@ class DeliveryRepo @Inject constructor(
             ) {
                 val dataDelivery: List<DeliveryItemDataModel>? = response.body()
                 if (dataDelivery != null && dataDelivery.isNotEmpty())
-                    thread {
-
+                    executor.execute {
                         dao.clearTable()
                         dao.insertAll(dataDelivery)
-
                     }
                 else {
                     onError("Server error!")
@@ -73,7 +73,7 @@ class DeliveryRepo @Inject constructor(
             override fun onFailure(call: Call<List<DeliveryItemDataModel>>, t: Throwable) {
 
                 super.onFailure(call, t)
-                if(!isRetry()) {
+                if (!isRetry()) {
                     onError(t.message ?: "Network error")
                 }
             }

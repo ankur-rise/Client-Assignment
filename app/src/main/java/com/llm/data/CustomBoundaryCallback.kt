@@ -12,11 +12,15 @@ import com.llm.ui.utils.NETWORK_ERR_MESSAGE
 import com.llm.ui.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Response
+import java.util.concurrent.Executor
 import kotlin.concurrent.thread
 
-class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDao, private val utils:NetworkUtils) : PagedList.BoundaryCallback<DeliveryItemDataModel>() {
-    private val TAG:String = CustomBoundaryCallback::class.java.simpleName
-    private var isRequestInProgress:Boolean = false
+class CustomBoundaryCallback(
+    private val api: Apis, private val dao: DeliveryDao, private val utils: NetworkUtils,
+    private val executor: Executor
+) : PagedList.BoundaryCallback<DeliveryItemDataModel>() {
+    private val TAG: String = CustomBoundaryCallback::class.java.simpleName
+    private var isRequestInProgress: Boolean = false
 
 
     private val _networkErrors = MutableLiveData<String>()
@@ -33,15 +37,15 @@ class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDa
 
     override fun onItemAtEndLoaded(itemAtEnd: DeliveryItemDataModel) {
         Log.i(TAG, "onItemAtEndLoaded")
-        fetchDataFromServer(itemAtEnd.id+1, NETWORK_PAGE_SIZE)
+        fetchDataFromServer(itemAtEnd.id + 1, NETWORK_PAGE_SIZE)
     }
 
     private fun fetchDataFromServer(offset: Int, limit: Int) {
-        if(!utils.isConnectedToInternet()) {
+        if (!utils.isConnectedToInternet()) {
             _networkErrors.value = NETWORK_ERR_MESSAGE
             return
         }
-        if(isRequestInProgress) return
+        if (isRequestInProgress) return
 
         isRequestInProgress = true
         val map = HashMap<String, Int>()
@@ -53,15 +57,14 @@ class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDa
                 call: Call<List<DeliveryItemDataModel>>,
                 response: Response<List<DeliveryItemDataModel>>
             ) {
-                val dataDelivery:List<DeliveryItemDataModel>? = response.body()
+                val dataDelivery: List<DeliveryItemDataModel>? = response.body()
                 if (dataDelivery != null && dataDelivery.isNotEmpty()) {
-                    thread {
+                    executor.execute {
                         dao.insertAll(dataDelivery)
                         isRequestInProgress = false
                     }
 
-                }
-                else {
+                } else {
                     isRequestInProgress = false
                     _networkErrors.value = "You have reached to the end of list."
                 }
@@ -70,15 +73,13 @@ class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDa
 
             override fun onFailure(call: Call<List<DeliveryItemDataModel>>, t: Throwable) {
                 super.onFailure(call, t)
-                if(!isRetry()) {
+                if (!isRetry()) {
                     _networkErrors.value = "Not able to fetch latest data"
                     isRequestInProgress = false
                 }
             }
         })
     }
-
-
 
 
     companion object {
