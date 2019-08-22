@@ -13,9 +13,9 @@ import javax.inject.Inject
 class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: DeliveryRepo) : ViewModel() {
 
     private val queryLiveData = MutableLiveData<Unit>()
-    private val repoResult: LiveData<RepoResult> = Transformations.map(queryLiveData,{
+    private val repoResult: LiveData<RepoResult> = Transformations.map(queryLiveData) {
         deliveryRepo.getDeliveryItems()
-    })
+    }
 
 
     val resultLiveData:LiveData<PagedList<DeliveryItemDataModel>> = Transformations.switchMap(repoResult){it.repoResult}

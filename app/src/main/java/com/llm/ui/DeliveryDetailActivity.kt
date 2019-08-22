@@ -23,7 +23,7 @@ class DeliveryDetailActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var coordinates:LatLongDataModel
 
-    @Inject                    //by lazy { ViewModelProviders.of(this).get(DetailViewModel::class.java)}
+    @Inject
     lateinit var viewModel:DetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +35,9 @@ class DeliveryDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         val dataBinding: ActivityDeliveyDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_delivey_detail)
         dataBinding.lifecycleOwner = this
         dataBinding.viewModel = viewModel
+
+        // setting title
+        supportActionBar?.title = getString(R.string.delivery_detail)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager

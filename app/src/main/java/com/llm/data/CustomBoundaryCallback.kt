@@ -7,13 +7,13 @@ import androidx.paging.PagedList
 import com.llm.data.db.DeliveryDao
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.network.Apis
+import com.llm.data.network.CallbackWithRetry
 import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 import kotlin.concurrent.thread
 
-class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao) : PagedList.BoundaryCallback<DeliveryItemDataModel>() {
-    private val TAG:String = RepoBoundaryCallback::class.java.simpleName
+class CustomBoundaryCallback(private val api : Apis, private val dao: DeliveryDao) : PagedList.BoundaryCallback<DeliveryItemDataModel>() {
+    private val TAG:String = CustomBoundaryCallback::class.java.simpleName
     private var isRequestInProgress:Boolean = false
 
 
@@ -42,7 +42,7 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
         map["offset"] = offset
         map["limit"] = limit
         val call = api.getDeliveries(map)
-        call.enqueue(object : Callback<List<DeliveryItemDataModel>> {
+        call.enqueue(object : CallbackWithRetry<List<DeliveryItemDataModel>>() {
             override fun onResponse(
                 call: Call<List<DeliveryItemDataModel>>,
                 response: Response<List<DeliveryItemDataModel>>
@@ -63,8 +63,11 @@ class RepoBoundaryCallback(private val api : Apis, private val dao: DeliveryDao)
             }
 
             override fun onFailure(call: Call<List<DeliveryItemDataModel>>, t: Throwable) {
-                _networkErrors.value = "Not able to fetch latest data"
-                isRequestInProgress = false
+                super.onFailure(call, t)
+                if(!isRetry()) {
+                    _networkErrors.value = "Not able to fetch latest data"
+                    isRequestInProgress = false
+                }
             }
         })
     }

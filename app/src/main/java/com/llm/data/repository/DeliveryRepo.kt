@@ -3,12 +3,13 @@ package com.llm.data.repository
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.llm.data.IDeliveryRepo
-import com.llm.data.RepoBoundaryCallback
-import com.llm.data.RepoBoundaryCallback.Companion.NETWORK_PAGE_SIZE
+import com.llm.data.CustomBoundaryCallback
+import com.llm.data.CustomBoundaryCallback.Companion.NETWORK_PAGE_SIZE
 import com.llm.data.db.DeliveryDao
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.models.RepoResult
 import com.llm.data.network.Apis
+import com.llm.data.network.CallbackWithRetry
 import org.jetbrains.annotations.NotNull
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,7 +26,7 @@ class DeliveryRepo @Inject constructor(
 
     override fun getDeliveryItems(): RepoResult {
         val dataSourceFactory = dao.get()
-        val callback = RepoBoundaryCallback(api, dao)
+        val callback = CustomBoundaryCallback(api, dao)
         val networkErr = callback.networkErrors
 
         val pagedListConfig = PagedList.Config.Builder()
@@ -44,7 +45,7 @@ class DeliveryRepo @Inject constructor(
         map["offset"] = 0
         map["limit"] = NETWORK_PAGE_SIZE
         val call = api.getDeliveries(map)
-        call.enqueue(object : Callback<List<DeliveryItemDataModel>> {
+        call.enqueue(object : CallbackWithRetry<List<DeliveryItemDataModel>>() {
             override fun onResponse(
                 call: Call<List<DeliveryItemDataModel>>,
                 response: Response<List<DeliveryItemDataModel>>
@@ -64,7 +65,11 @@ class DeliveryRepo @Inject constructor(
             }
 
             override fun onFailure(call: Call<List<DeliveryItemDataModel>>, t: Throwable) {
-                onError(t.message ?: "Network error")
+
+                super.onFailure(call, t)
+                if(!isRetry()) {
+                    onError(t.message ?: "Network error")
+                }
             }
         })
     }
