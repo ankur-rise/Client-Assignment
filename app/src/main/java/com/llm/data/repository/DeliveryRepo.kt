@@ -3,7 +3,6 @@ package com.llm.data.repository
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.llm.data.CustomBoundaryCallback
-import com.llm.data.CustomBoundaryCallback.Companion.NETWORK_PAGE_SIZE
 import com.llm.data.IDeliveryRepo
 import com.llm.data.db.DeliveryDao
 import com.llm.data.models.DeliveryItemDataModel
@@ -30,7 +29,7 @@ class DeliveryRepo @Inject constructor(
 
     override fun getDeliveryItems(): RepoResult {
         val dataSourceFactory = dao.get()
-        val callback = CustomBoundaryCallback(api, dao, networkUtils, executor)
+        val callback = CustomBoundaryCallback(dao, executor, :: getDeliveries)
         val networkErr = callback.networkErrors
 
         val pagedListConfig = PagedList.Config.Builder()
@@ -44,28 +43,44 @@ class DeliveryRepo @Inject constructor(
     }
 
 
-    override fun refreshDeliveryItems(onError: (errMsg: String) -> Unit) {
+    override fun refreshData( onError: (errMsg: String) -> Unit){
+        getDeliveries(
+            0,
+            NETWORK_PAGE_SIZE,
+            onSuccess = { data: List<DeliveryItemDataModel> -> refreshDB(data) },
+            onError = {
+                onError(it)
+            })
+    }
+
+    override fun getDeliveries(
+        offset: Int,
+        limit: Int,
+        onSuccess: (data: List<DeliveryItemDataModel>) -> Unit,
+        onError: (errMsg: String) -> Unit
+    ) {
         if (!networkUtils.isConnectedToInternet()) {
             onError(NETWORK_ERR_MESSAGE)
             return
         }
         val map = HashMap<String, Int>()
-        map["offset"] = 0
-        map["limit"] = NETWORK_PAGE_SIZE
+        map["offset"] = offset
+        map["limit"] = limit
         val call = api.getDeliveries(map)
         call.enqueue(object : CallbackWithRetry<List<DeliveryItemDataModel>>() {
             override fun onResponse(
                 call: Call<List<DeliveryItemDataModel>>,
                 response: Response<List<DeliveryItemDataModel>>
             ) {
-                val dataDelivery: List<DeliveryItemDataModel>? = response.body()
-                if (dataDelivery != null && dataDelivery.isNotEmpty())
-                    executor.execute {
-                        dao.clearTable()
-                        dao.insertAll(dataDelivery)
+                if (response.isSuccessful) {
+                    val dataDelivery: List<DeliveryItemDataModel>? = response.body()
+                    if (dataDelivery != null && dataDelivery.isNotEmpty())
+                        onSuccess(dataDelivery)
+                    else {
+                        onError("You have reached to the end of list.")
                     }
-                else {
-                    onError("Server error!")
+                } else {
+                    onError(response.message())
                 }
 
             }
@@ -80,10 +95,18 @@ class DeliveryRepo @Inject constructor(
         })
     }
 
+    private fun refreshDB(data: List<DeliveryItemDataModel>) {
+        executor.execute {
+            dao.clearTable()
+            dao.insertAll(data)
+        }
+    }
+
 
     companion object {
         private const val DATABASE_PAGE_SIZE = 20
         const val INITIAL_LOAD_SIZE_HINT = 20
+        const val NETWORK_PAGE_SIZE = 20
     }
 }
 
