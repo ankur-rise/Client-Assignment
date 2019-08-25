@@ -39,7 +39,7 @@ class DeliveryRepo @Inject constructor(
             .build()
 
         val pagedList = LivePagedListBuilder(dataSourceFactory, pagedListConfig).setBoundaryCallback(callback).build()
-        return RepoResult(pagedList, networkErr)
+        return RepoResult(pagedList, networkErr, retry = {callback.retryFailedReq()})
     }
 
 

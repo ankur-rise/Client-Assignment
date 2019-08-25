@@ -40,7 +40,7 @@ class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: Deliv
     }
 
     fun retryFailedReq() {
-
+        repoResult.value?.retry?.invoke()
     }
 
 
