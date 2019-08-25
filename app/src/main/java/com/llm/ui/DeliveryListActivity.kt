@@ -24,15 +24,6 @@ import javax.inject.Inject
 const val KEY_DELIVERY_ITEM = "key_delivery_item"
 
 class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectListener {
-    override fun onSelect(model: DeliveryItemDataModel) {
-        val intent = Intent(this, DeliveryDetailActivity::class.java).apply {
-            val bundle = Bundle().apply {
-                putParcelable(KEY_DELIVERY_ITEM, model)
-            }
-            putExtras(bundle)
-        }
-        startActivity(intent)
-    }
 
     @Inject // cannot be private as dagger required this variable to access
     lateinit var factory: ViewModelFactory
@@ -40,7 +31,9 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
     private val viewModel: DeliveryItemsViewModel by viewModels { factory }
     private lateinit var recyclerView: RecyclerView
     lateinit var refreshLayout: SwipeRefreshLayout
-    private var adapter = DeliveryAdapter()
+
+    @Inject
+    lateinit var adapter: DeliveryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +49,11 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
 
         refreshLayout = findViewById(R.id.swipe_refresh)
         refreshLayout.setOnRefreshListener { refreshData() }
+
+        adapter.setRetry {
+            viewModel.retryFailedReq()
+        }
+
         adapter.itemSelectListener = this
 
     }
@@ -74,10 +72,11 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
             adapter.submitList(it)
         })
 
-        viewModel.errLiveData.observe(this, Observer {
-
-            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-
+        viewModel.networkState.observe(this, Observer {
+            adapter.setNetworkState(it)
+            /*if(it.status==Status.FAILED) {
+                Toast.makeText(this, it.msg, Toast.LENGTH_LONG).show()
+            }*/
         })
 
         viewModel.errRefreshLiveData.observe(this, object : Observer<String> {
@@ -109,9 +108,18 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
                 return true
             }
         }
-
         return super.onOptionsItemSelected(item)
 
+    }
+
+    override fun onSelect(model: DeliveryItemDataModel) {
+        val intent = Intent(this, DeliveryDetailActivity::class.java).apply {
+            val bundle = Bundle().apply {
+                putParcelable(KEY_DELIVERY_ITEM, model)
+            }
+            putExtras(bundle)
+        }
+        startActivity(intent)
     }
 
 

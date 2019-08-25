@@ -30,7 +30,7 @@ class DeliveryRepo @Inject constructor(
     override fun getDeliveryItems(): RepoResult {
         val dataSourceFactory = dao.get()
         val callback = CustomBoundaryCallback(dao, executor, :: getDeliveries)
-        val networkErr = callback.networkErrors
+        val networkErr = callback.networkState
 
         val pagedListConfig = PagedList.Config.Builder()
             .setEnablePlaceholders(false)
@@ -74,11 +74,13 @@ class DeliveryRepo @Inject constructor(
             ) {
                 if (response.isSuccessful) {
                     val dataDelivery: List<DeliveryItemDataModel>? = response.body()
-                    if (dataDelivery != null && dataDelivery.isNotEmpty())
+                    if(dataDelivery!=null) {
                         onSuccess(dataDelivery)
-                    else {
-                        onError("You have reached to the end of list.")
                     }
+                    else{
+                        onError("Empty data")
+                    }
+
                 } else {
                     onError(response.message())
                 }

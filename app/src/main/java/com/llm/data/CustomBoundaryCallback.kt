@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import com.llm.data.db.DeliveryDao
 import com.llm.data.models.DeliveryItemDataModel
+import com.llm.data.network.NetworkState
 import com.llm.data.repository.DeliveryRepo.Companion.NETWORK_PAGE_SIZE
 import java.util.concurrent.Executor
 
@@ -19,12 +20,13 @@ class CustomBoundaryCallback constructor(
 ) : PagedList.BoundaryCallback<DeliveryItemDataModel>() {
     private val TAG: String = CustomBoundaryCallback::class.java.simpleName
     private var isRequestInProgress: Boolean = false
+    private var mCurrentOffset:Int=0
 
 
-    private val _networkErrors = MutableLiveData<String>()
+    private val _networkState = MutableLiveData<NetworkState>()
     // LiveData of network errors.
-    val networkErrors: LiveData<String>
-        get() = _networkErrors
+    val networkState: LiveData<NetworkState>
+        get() = _networkState
 
 
     override fun onZeroItemsLoaded() {
@@ -38,8 +40,7 @@ class CustomBoundaryCallback constructor(
         Log.i(TAG, "onItemAtEndLoaded")
         getData(itemAtEnd.id + 1)
 
-//        fetchDataFromServer(itemAtEnd.id+1, NETWORK_PAGE_SIZE)
-
+        mCurrentOffset = itemAtEnd.id+1
 
     }
 
@@ -47,17 +48,24 @@ class CustomBoundaryCallback constructor(
         if (isRequestInProgress) return
         isRequestInProgress = true
 
+        _networkState.value = NetworkState.LOADING
+
         getDeliveries(offset, NETWORK_PAGE_SIZE, {
 
             isRequestInProgress = false
             saveDataInDB(it)
+            _networkState.value = NetworkState.LOADED
 
         }, { errMsg ->
 
             isRequestInProgress = false
-            _networkErrors.value = errMsg
+            _networkState.value = NetworkState.error(errMsg)
 
         })
+    }
+
+    fun retryFailedReq(){
+        getData(mCurrentOffset)
     }
 
     private fun saveDataInDB(data: List<DeliveryItemDataModel>) {
@@ -68,7 +76,7 @@ class CustomBoundaryCallback constructor(
 
     /*private fun fetchDataFromServer(offset: Int, limit: Int) {
         if (!utils.isConnectedToInternet()) {
-            _networkErrors.value = NETWORK_ERR_MESSAGE
+            _networkState.value = NETWORK_ERR_MESSAGE
             return
         }
         if (isRequestInProgress) return
@@ -92,7 +100,7 @@ class CustomBoundaryCallback constructor(
 
                 } else {
                     isRequestInProgress = false
-                    _networkErrors.value = "You have reached to the end of list."
+                    _networkState.value = "You have reached to the end of list."
                 }
 
             }
@@ -100,7 +108,7 @@ class CustomBoundaryCallback constructor(
             override fun onFailure(call: Call<List<DeliveryItemDataModel>>, t: Throwable) {
                 super.onFailure(call, t)
                 if (!isRetry()) {
-                    _networkErrors.value = "Not able to fetch latest data"
+                    _networkState.value = "Not able to fetch latest data"
                     isRequestInProgress = false
                 }
             }

@@ -7,21 +7,23 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.models.RepoResult
+import com.llm.data.network.NetworkState
 import com.llm.data.repository.DeliveryRepo
-import com.llm.data.repository.DeliveryRepo.Companion.NETWORK_PAGE_SIZE
 import javax.inject.Inject
 
 class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: DeliveryRepo) : ViewModel() {
 
-    private val deliveryRepoResult = MutableLiveData<RepoResult>()
-    private val repoResult: LiveData<RepoResult> = deliveryRepoResult
+
+    private val deliveryData = MutableLiveData<Unit>()
+    private val repoResult: LiveData<RepoResult> = Transformations.map(deliveryData) {
+        deliveryRepo.getDeliveryItems()
+    }
 
 
     val resultLiveData:LiveData<PagedList<DeliveryItemDataModel>> = Transformations.switchMap(repoResult){it.deliveryData}
-    val errLiveData:LiveData<String> = Transformations.switchMap(repoResult){it.networkErr}
+    val networkState:LiveData<NetworkState> = Transformations.switchMap(repoResult){it.networkState}
     fun loadUser() {
-//        deliveryRepoResult.postValue(Unit)
-        deliveryRepoResult.postValue(deliveryRepo.getDeliveryItems())
+        deliveryData.postValue(Unit)
     }
 
 
@@ -35,6 +37,10 @@ class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: Deliv
             _errRefresh.postValue(it)
 
         })
+    }
+
+    fun retryFailedReq() {
+
     }
 
 
