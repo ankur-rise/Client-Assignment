@@ -82,7 +82,7 @@ class DeliveryRepo @Inject constructor(
                     }
 
                 } else {
-                    onError(response.message())
+                    onError(response.message()?:"Server error!")
                 }
 
             }
