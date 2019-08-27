@@ -35,7 +35,8 @@
 
         <activity
                 android:name=".ui.DeliveryDetailActivity"
-                android:label="@string/title_activity_delivey_detail">
+                android:label="@string/title_activity_delivey_detail"
+                >
         </activity>
         <activity android:name=".ui.DeliveryListActivity">
             <intent-filter>

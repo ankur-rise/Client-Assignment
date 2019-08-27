@@ -17,8 +17,9 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtras
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
-import androidx.test.runner.AndroidJUnit4
+
 import com.llm.ui.DeliveryDetailActivity
 import com.llm.ui.DeliveryListActivity
 import com.llm.ui.KEY_DELIVERY_ITEM
@@ -34,25 +35,22 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DeliveryListActivityTest {
 
-    @get:Rule
-    var activityRule: ActivityTestRule<DeliveryListActivity> = ActivityTestRule(DeliveryListActivity::class.java)
-
-
     @Before
-    fun init() {
+    fun setup() {
         Intents.init()
     }
-
     @After
-    fun teardown() {
+    fun clear() {
         Intents.release()
     }
+
+    @get:Rule
+    var activityRule: ActivityTestRule<DeliveryListActivity> = ActivityTestRule(DeliveryListActivity::class.java)
 
 
     @Test
     fun testSwipeToRefresh(){
         onView(withId(R.id.swipe_refresh)).perform(withCustomConstraints(swipeDown(),  isDisplayingAtLeast(85)))
-
     }
 
     @Test
@@ -74,6 +72,7 @@ class DeliveryListActivityTest {
         val launchActivity = launchActivity()
         val idlingResource = launchActivity.getIdlingResource()
         IdlingRegistry.getInstance().register(idlingResource)
+
         val action = RecyclerViewActions.actionOnItemAtPosition<DeliveryItemViewHolder>(
             2,
             ViewActions.click()

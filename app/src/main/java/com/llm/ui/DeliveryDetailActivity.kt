@@ -1,9 +1,13 @@
 package com.llm.ui
 
 import android.os.Bundle
+import android.os.Handler
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.test.espresso.IdlingResource
 import com.google.android.gms.maps.MapView
+import com.llm.IdlingResource.SimpleIdlingResource
 import com.llm.R
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.databinding.ActivityDeliveyDetailBinding
@@ -28,6 +32,10 @@ class DeliveryDetailActivity : AppCompatActivity() {
         dataBinding.lifecycleOwner = this
         dataBinding.viewModel = viewModel
 
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
         // setting title
         supportActionBar?.title = getString(R.string.delivery_detail)
 
