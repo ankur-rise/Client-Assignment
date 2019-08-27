@@ -1,5 +1,6 @@
 package com.llm.di.modules
 
+import com.llm.BuildConfig
 import com.llm.data.network.Apis
 import dagger.Module
 import dagger.Provides
@@ -10,7 +11,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-const val BASE_URL = "https://mock-api-mobile.dev.lalamove.com/"
 
 @Module
 class NetworkModule {
@@ -23,7 +23,7 @@ class NetworkModule {
     @Provides
     fun getRetrofitInstance(gsonConverterFactory: GsonConverterFactory, httpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(BuildConfig.BASE_URL)
                 .client(httpClient)
                 .addConverterFactory(gsonConverterFactory)
                 .build()

@@ -2,17 +2,21 @@ package com.llm.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.test.espresso.IdlingResource
+import com.llm.IdlingResource.SimpleIdlingResource
 import com.llm.R
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.di.Injector
@@ -69,6 +73,7 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
             if (refreshLayout.isRefreshing) {
                 refreshLayout.isRefreshing = false
             }
+            mIdlingResource?.setIdleState(true)
             adapter.submitList(it)
         })
 
@@ -89,8 +94,9 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
 
         })
 
+        // for testing only
+        mIdlingResource?.setIdleState(false)
         viewModel.loadUser()
-
         recyclerView.adapter = adapter
     }
 
@@ -120,6 +126,18 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
             putExtras(bundle)
         }
         startActivity(intent)
+    }
+
+    // The Idling Resource which will be null in production.
+    private var mIdlingResource: SimpleIdlingResource? = null
+
+    @VisibleForTesting
+    @Inject
+    fun getIdlingResource(): IdlingResource? {
+        if (mIdlingResource == null) {
+            mIdlingResource = SimpleIdlingResource()
+        }
+        return mIdlingResource
     }
 
 
