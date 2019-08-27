@@ -2,7 +2,6 @@ package com.llm
 
 import android.content.Intent
 import android.view.View
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.UiController
@@ -12,12 +11,17 @@ import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.BundleMatchers.hasKey
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtras
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
+import com.llm.ui.DeliveryDetailActivity
 import com.llm.ui.DeliveryListActivity
+import com.llm.ui.KEY_DELIVERY_ITEM
 import com.llm.ui.adapter.DeliveryItemViewHolder
 import org.hamcrest.Matcher
 import org.junit.After
@@ -35,7 +39,7 @@ class DeliveryListActivityTest {
 
 
     @Before
-    open fun init() {
+    fun init() {
         Intents.init()
     }
 
@@ -60,6 +64,7 @@ class DeliveryListActivityTest {
 
         onView(withId(R.id.rl))
             .perform(scrollToPosition).check(ViewAssertions.matches(scrollToPosition.constraints))
+
         if (idlingResource != null)
             IdlingRegistry.getInstance().unregister(idlingResource)
     }
@@ -73,25 +78,22 @@ class DeliveryListActivityTest {
             2,
             ViewActions.click()
         )
-        val check = onView(withId(R.id.rl)).perform(action)
-//        mCountingTaskExecutorRule.drainTasks(30, TimeUnit.MINUTES)
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        Espresso.pressBack()
-//        mCountingTaskExecutorRule.drainTasks(30, TimeUnit.MINUTES)
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        check.check(ViewAssertions.matches(action.constraints))
+         onView(withId(R.id.rl)).perform(action)
+
+        intended(hasComponent(DeliveryDetailActivity::class.java!!.name))
+        intended(hasExtras(hasKey(KEY_DELIVERY_ITEM)))
+
+
         if (idlingResource != null)
             IdlingRegistry.getInstance().unregister(idlingResource)
     }
 
 
-    fun launchActivity(): DeliveryListActivity {
-        val launchActivity = activityRule.launchActivity(getIntent())
-        EspressoTestUtil.disableAnimations(activityRule)
-        return launchActivity
+    private fun launchActivity(): DeliveryListActivity {
+        return activityRule.launchActivity(getIntent())
     }
 
-    open fun getIntent(): Intent = Intent()
+    private fun getIntent(): Intent = Intent()
 
     private fun withCustomConstraints(action: ViewAction, constraints: Matcher<View>): ViewAction {
         return object : ViewAction {
