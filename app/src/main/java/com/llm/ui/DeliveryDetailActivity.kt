@@ -1,6 +1,7 @@
 package com.llm.ui
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.maps.MapView
@@ -9,13 +10,16 @@ import com.llm.data.models.DeliveryItemDataModel
 import com.llm.databinding.ActivityDeliveyDetailBinding
 import com.llm.di.Injector
 import com.llm.ui.viewmodels.DetailViewModel
+import com.llm.ui.viewmodels.factory.ViewModelFactory
 import javax.inject.Inject
 
 
 class DeliveryDetailActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var viewModel: DetailViewModel
+    @Inject // cannot be private as dagger required this variable to access
+    lateinit var factory: ViewModelFactory
+
+    private val viewModel: DetailViewModel by  viewModels { factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
