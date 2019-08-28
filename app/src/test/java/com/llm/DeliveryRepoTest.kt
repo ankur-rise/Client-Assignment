@@ -6,7 +6,7 @@ import com.llm.data.models.LatLongDataModel
 import com.llm.data.network.Apis
 import com.llm.data.network.CallbackWithRetry
 import com.llm.data.repository.DeliveryRepo
-import com.llm.ui.utils.NetworkUtils
+import com.llm.ui.utils.Utils
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -20,18 +20,14 @@ import java.util.concurrent.Executor
 open class DeliveryRepoTest {
     private lateinit var repo: DeliveryRepo
 
-
     @Mock
     lateinit var api: Apis
-
-//    @Mock
-//    lateinit var callback: DeliveryRepo.Callback
 
     @Mock
     lateinit var dao: DeliveryDao
 
     @Mock
-    lateinit var networkUtils: NetworkUtils
+    lateinit var utils: Utils
 
     @Mock
     lateinit var executor: Executor
@@ -39,7 +35,7 @@ open class DeliveryRepoTest {
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
-        repo = DeliveryRepo(api, dao, networkUtils = networkUtils, executor = executor)
+        repo = DeliveryRepo(api, dao, utils = utils, executor = executor)
     }
 
     @Test
@@ -51,7 +47,7 @@ open class DeliveryRepoTest {
 
     @Test
     fun testRefreshData() {
-        whenever(networkUtils.isConnectedToInternet()).thenReturn(true)
+        whenever(utils.isConnectedToInternet()).thenReturn(true)
         val response = listOf(DeliveryItemDataModel(0, "", "", LatLongDataModel(0.0, 0.0, "")))
         val mockCall = mock<Call<List<DeliveryItemDataModel>>> {
             on { execute() } doReturn Response.success(response)
@@ -69,7 +65,7 @@ open class DeliveryRepoTest {
     /* @Test
      open fun testDeliveries() {
          val response = listOf(DeliveryItemDataModel(0, "", "", LatLongDataModel(0.0, 0.0, "")))
-         whenever(networkUtils.isConnectedToInternet()).thenReturn(true)
+         whenever(utils.isConnectedToInternet()).thenReturn(true)
          val resp = Response.success(response)
 
          val mockCall = mock<Call<List<DeliveryItemDataModel>>>{
@@ -98,7 +94,7 @@ open class DeliveryRepoTest {
     @Test
     open fun testDeliveries() {
         val response = listOf(DeliveryItemDataModel(0, "", "", LatLongDataModel(0.0, 0.0, "")))
-        whenever(networkUtils.isConnectedToInternet()).thenReturn(true)
+        whenever(utils.isConnectedToInternet()).thenReturn(true)
         val resp = Response.success(response)
 
         val mockCall = mock<Call<List<DeliveryItemDataModel>>> {
@@ -115,7 +111,7 @@ open class DeliveryRepoTest {
             verify(mockCall).enqueue(capture())
             firstValue.onResponse(mockCall, resp)
             assertNotNull(resp)
-            successCallback.invoke(any())
+
         }
 
     }

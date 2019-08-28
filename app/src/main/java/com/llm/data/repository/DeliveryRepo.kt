@@ -2,6 +2,7 @@ package com.llm.data.repository
 
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import com.llm.R
 import com.llm.data.CustomBoundaryCallback
 import com.llm.data.IDeliveryRepo
 import com.llm.data.db.DeliveryDao
@@ -10,8 +11,7 @@ import com.llm.data.models.RepoResult
 import com.llm.data.network.Apis
 import com.llm.data.network.CallbackWithRetry
 import com.llm.di.qualifiers.SingleThreadExecutor
-import com.llm.ui.utils.NETWORK_ERR_MESSAGE
-import com.llm.ui.utils.NetworkUtils
+import com.llm.ui.utils.Utils
 import org.jetbrains.annotations.NotNull
 import retrofit2.Call
 import retrofit2.Response
@@ -20,10 +20,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DeliveryRepo @Inject constructor(
+open class DeliveryRepo @Inject constructor(
     @NotNull private val api: Apis,
     private val dao: DeliveryDao,
-    private val networkUtils: NetworkUtils,
+    private val utils: Utils,
     @SingleThreadExecutor private val executor: Executor
 ) : IDeliveryRepo {
 
@@ -59,8 +59,8 @@ class DeliveryRepo @Inject constructor(
         onSuccess: (data: List<DeliveryItemDataModel>) -> Unit,
         onError: (errMsg: String) -> Unit
     ) {
-        if (!networkUtils.isConnectedToInternet()) {
-            onError(NETWORK_ERR_MESSAGE)
+        if (!utils.isConnectedToInternet()) {
+            onError(utils.getString(R.string.internet_error))
             return
         }
         val map = HashMap<String, Int>()
@@ -78,11 +78,11 @@ class DeliveryRepo @Inject constructor(
                         onSuccess(dataDelivery)
                     }
                     else{
-                        onError("Empty data")
+                        onError(utils.getString(R.string.empty_data))
                     }
 
                 } else {
-                    onError(response.message()?:"Server error!")
+                    onError(response.message()?: utils.getString(R.string.server_error))
                 }
 
             }
@@ -91,7 +91,7 @@ class DeliveryRepo @Inject constructor(
 
                 super.onFailure(call, t)
                 if (!isRetry()) {
-                    onError(t.message ?: "Network error")
+                    onError(t.message ?: utils.getString(R.string.netwrok_error))
                 }
             }
         })
