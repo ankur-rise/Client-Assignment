@@ -1,12 +1,10 @@
 package com.llm.ui.utils
 
-import android.util.Log
 import androidx.databinding.BindingAdapter
 import com.facebook.drawee.view.SimpleDraweeView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
-
 import com.google.android.gms.maps.model.MarkerOptions
 import com.llm.data.models.LatLongDataModel
 
