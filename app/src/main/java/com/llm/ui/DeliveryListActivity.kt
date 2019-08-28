@@ -2,7 +2,6 @@ package com.llm.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -68,7 +67,7 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
     override fun onStart() {
         super.onStart()
         viewModel.resultLiveData.observe(this, Observer<PagedList<DeliveryItemDataModel>> {
-            Log.d("DeliveryListActivity", "list: ${it?.size}")
+
             if (refreshLayout.isRefreshing) {
                 refreshLayout.isRefreshing = false
             }
@@ -83,14 +82,11 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
             }*/
         })
 
-        viewModel.errRefreshLiveData.observe(this, object : Observer<String> {
-            override fun onChanged(str: String?) {
-                if (refreshLayout.isRefreshing) {
-                    refreshLayout.isRefreshing = false
-                }
-                Toast.makeText(this@DeliveryListActivity, str, Toast.LENGTH_LONG).show()
+        viewModel.errRefreshLiveData.observe(this, Observer<String> { str ->
+            if (refreshLayout.isRefreshing) {
+                refreshLayout.isRefreshing = false
             }
-
+            Toast.makeText(this@DeliveryListActivity, str, Toast.LENGTH_SHORT).show()
         })
 
         // for testing only

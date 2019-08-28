@@ -82,7 +82,8 @@ open class DeliveryRepo @Inject constructor(
                     }
 
                 } else {
-                    onError(response.message()?: utils.getString(R.string.server_error))
+                    val msg = getMessage(response.message(), utils.getString(R.string.server_error))
+                    onError(msg)
                 }
 
             }
@@ -91,10 +92,18 @@ open class DeliveryRepo @Inject constructor(
 
                 super.onFailure(call, t)
                 if (!isRetry()) {
-                    onError(t.message ?: utils.getString(R.string.netwrok_error))
+                    val msg = getMessage(t.message, utils.getString(R.string.netwrok_error))
+                    onError(msg)
                 }
             }
         })
+    }
+
+    private fun getMessage(original:String?, alternate: String): String {
+        var msg = original
+        if(msg==null || msg.isEmpty())
+            msg = alternate
+        return msg
     }
 
     private fun refreshDB(data: List<DeliveryItemDataModel>) {
