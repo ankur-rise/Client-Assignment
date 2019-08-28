@@ -22,7 +22,7 @@ class DeliveryItemsViewModel @Inject constructor(private val deliveryRepo: Deliv
 
     val resultLiveData:LiveData<PagedList<DeliveryItemDataModel>> = Transformations.switchMap(repoResult){it.deliveryData}
     val networkState:LiveData<NetworkState> = Transformations.switchMap(repoResult){it.networkState}
-    fun loadUser() {
+    fun loadDelivery() {
         deliveryData.postValue(Unit)
     }
 

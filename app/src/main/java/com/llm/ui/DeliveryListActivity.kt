@@ -95,7 +95,7 @@ class DeliveryListActivity : AppCompatActivity(), DeliveryAdapter.OnItemSelectLi
 
         // for testing only
         mIdlingResource?.setIdleState(false)
-        viewModel.loadUser()
+        viewModel.loadDelivery()
         recyclerView.adapter = adapter
     }
 
