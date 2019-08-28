@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import com.llm.data.models.DeliveryItemDataModel
-import com.llm.data.models.LatLongDataModel
 import com.llm.data.models.RepoResult
 import com.llm.data.network.NetworkState
 import com.llm.data.repository.DeliveryRepo
@@ -22,7 +21,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
-import java.util.ArrayList
+import java.util.*
 
 @RunWith(JUnit4::class)
 class DeliveryItemViewModelTest {
@@ -72,7 +71,7 @@ class DeliveryItemViewModelTest {
     fun testData_Loaded() {
         networkStateLiveData.value = NetworkState.LOADED
         val list = ArrayList<DeliveryItemDataModel>()
-        list.add(getDummyResponse())
+        list.add(getDummyDeliveryItem())
 
         mutableLiveData.value = mockPagedList(list)
 
@@ -83,9 +82,6 @@ class DeliveryItemViewModelTest {
         verify(listObserver).onChanged(any())
     }
 
-    private fun getDummyResponse(): DeliveryItemDataModel {
-        return DeliveryItemDataModel(0, "", "", LatLongDataModel(0.0, 0.0, ""))
-    }
 
     @Test
     fun testData_Failure() {
