@@ -8,13 +8,16 @@ import com.llm.data.network.CallbackWithRetry
 import com.llm.data.repository.DeliveryRepo
 import com.llm.ui.utils.Utils
 import com.nhaarman.mockitokotlin2.*
-import org.junit.Assert.assertNotNull
+import okhttp3.MediaType
+import okhttp3.ResponseBody
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import retrofit2.Call
 import retrofit2.Response
+import java.lang.RuntimeException
 import java.util.concurrent.Executor
 
 open class DeliveryRepoTest {
@@ -95,6 +98,7 @@ open class DeliveryRepoTest {
     open fun testDeliveries() {
         val response = listOf(DeliveryItemDataModel(0, "", "", LatLongDataModel(0.0, 0.0, "")))
         whenever(utils.isConnectedToInternet()).thenReturn(true)
+
         val resp = Response.success(response)
 
         val mockCall = mock<Call<List<DeliveryItemDataModel>>> {
@@ -103,18 +107,52 @@ open class DeliveryRepoTest {
 
         whenever(api.getDeliveries(any())).thenReturn(mockCall)
 
-        val successCallback = fun(_: List<DeliveryItemDataModel>) {}
-        val errorCallback = fun(_: String) {}
+        var isSuccessBlockCalled = false
+        val successCallback = fun(_: List<DeliveryItemDataModel>) {
+            isSuccessBlockCalled = true
+        }
 
-        repo.getDeliveries(0, 20, successCallback, errorCallback)
+        repo.getDeliveries(0, 20, successCallback, {})
         argumentCaptor<CallbackWithRetry<List<DeliveryItemDataModel>>>().apply {
             verify(mockCall).enqueue(capture())
             firstValue.onResponse(mockCall, resp)
             assertNotNull(resp)
-
+            assertTrue(isSuccessBlockCalled)
         }
 
     }
+
+   /* @Test
+    open fun testDeliveries_Failure() {
+        val err = "Internal Server Error"
+        whenever(utils.isConnectedToInternet()).thenReturn(true)
+
+        val resp = Response.error<List<DeliveryItemDataModel>>(500, ResponseBody.create(MediaType.parse("text"), err))
+
+        val mockCall = mock<Call<List<DeliveryItemDataModel>>> {
+            on { execute() } doReturn resp
+        }
+
+        whenever(mockCall.clone()).thenReturn(mockCall)
+
+        whenever(api.getDeliveries(any())).thenReturn(mockCall)
+
+        var message = ""
+        val errorCallback = fun(_: String) {
+            message = err
+        }
+
+        repo.getDeliveries(0, 20, {}, errorCallback)
+        argumentCaptor<CallbackWithRetry<List<DeliveryItemDataModel>>>().apply {
+            verify(mockCall).enqueue(capture())
+            firstValue.onFailure(mockCall, RuntimeException("Internal Server Error"))
+
+            assertEquals("", err, message)
+        }
+
+    }*/
+
+
 
 
 }
