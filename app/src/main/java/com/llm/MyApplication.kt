@@ -2,7 +2,6 @@ package com.llm
 
 import android.app.Application
 import com.facebook.drawee.backends.pipeline.Fresco
-import com.llm.data.db.DBManager
 import com.llm.di.components.DaggerIApplicationComponent
 import com.llm.di.components.IApplicationComponent
 import com.llm.di.modules.ContextModule
@@ -12,7 +11,6 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        DBManager.initDB(this)
         Fresco.initialize(this)
     }
 

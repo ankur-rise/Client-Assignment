@@ -1,5 +1,6 @@
 package com.llm
 
+import com.llm.data.db.AppDB
 import com.llm.data.db.DeliveryDao
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.models.LatLongDataModel
@@ -8,16 +9,14 @@ import com.llm.data.network.CallbackWithRetry
 import com.llm.data.repository.DeliveryRepo
 import com.llm.ui.utils.Utils
 import com.nhaarman.mockitokotlin2.*
-import okhttp3.MediaType
-import okhttp3.ResponseBody
-import org.junit.Assert.*
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import retrofit2.Call
 import retrofit2.Response
-import java.lang.RuntimeException
 import java.util.concurrent.Executor
 
 open class DeliveryRepoTest {
@@ -27,7 +26,9 @@ open class DeliveryRepoTest {
     lateinit var api: Apis
 
     @Mock
-    lateinit var dao: DeliveryDao
+    lateinit var db: AppDB
+    @Mock
+    lateinit var dao:DeliveryDao
 
     @Mock
     lateinit var utils: Utils
@@ -38,11 +39,13 @@ open class DeliveryRepoTest {
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
-        repo = DeliveryRepo(api, dao, utils = utils, executor = executor)
+        repo = DeliveryRepo(api, db, utils = utils, executor = executor)
     }
 
     @Test
     fun testRepoResult() {
+
+        whenever(db.deliveryDao()).thenReturn(dao)
         whenever(dao.get()).thenReturn(MockDataSourceFactory())
         val repoResult = repo.getDeliveryItems()
         assertNotNull(repoResult)
@@ -65,34 +68,7 @@ open class DeliveryRepoTest {
     }
 
 
-    /* @Test
-     open fun testDeliveries() {
-         val response = listOf(DeliveryItemDataModel(0, "", "", LatLongDataModel(0.0, 0.0, "")))
-         whenever(utils.isConnectedToInternet()).thenReturn(true)
-         val resp = Response.success(response)
 
-         val mockCall = mock<Call<List<DeliveryItemDataModel>>>{
-             on { execute() } doReturn resp
-         }
-         whenever(api.getDeliveries(any())).thenReturn(mockCall)
-
-         val spyRepo = spy(repo)
-
-         val successCallback = fun(data:List<DeliveryItemDataModel>) {}
-         val errorCallback = fun(errMsg:String) {}
-
- //        val successArgumentCaptor = argumentCaptor<(data: List<DeliveryItemDataModel>) -> Unit>().apply {  }
- //        val errorArgumentCaptor = argumentCaptor<(errMsg:String) -> Unit>()
- //        verify(spyRepo).getDeliveries(any(), any(), successArgumentCaptor.capture(), errorArgumentCaptor.capture())
-         repo.getDeliveries_duplicate(0, 20, callback)
-         argumentCaptor<CallbackWithRetry<List<DeliveryItemDataModel>>>().apply {
-             verify(mockCall).enqueue(capture())
-             firstValue.onResponse(mockCall, resp)
- //            assertNotNull(resp)
-             verify(callback).onSuccess(any())
-         }
-
-     }*/
 
     @Test
     open fun testDeliveries() {
@@ -121,38 +97,6 @@ open class DeliveryRepoTest {
         }
 
     }
-
-   /* @Test
-    open fun testDeliveries_Failure() {
-        val err = "Internal Server Error"
-        whenever(utils.isConnectedToInternet()).thenReturn(true)
-
-        val resp = Response.error<List<DeliveryItemDataModel>>(500, ResponseBody.create(MediaType.parse("text"), err))
-
-        val mockCall = mock<Call<List<DeliveryItemDataModel>>> {
-            on { execute() } doReturn resp
-        }
-
-        whenever(mockCall.clone()).thenReturn(mockCall)
-
-        whenever(api.getDeliveries(any())).thenReturn(mockCall)
-
-        var message = ""
-        val errorCallback = fun(_: String) {
-            message = err
-        }
-
-        repo.getDeliveries(0, 20, {}, errorCallback)
-        argumentCaptor<CallbackWithRetry<List<DeliveryItemDataModel>>>().apply {
-            verify(mockCall).enqueue(capture())
-            firstValue.onFailure(mockCall, RuntimeException("Internal Server Error"))
-
-            assertEquals("", err, message)
-        }
-
-    }*/
-
-
 
 
 }

@@ -5,7 +5,7 @@ import androidx.paging.PagedList
 import com.llm.R
 import com.llm.data.CustomBoundaryCallback
 import com.llm.data.IDeliveryRepo
-import com.llm.data.db.DeliveryDao
+import com.llm.data.db.AppDB
 import com.llm.data.models.DeliveryItemDataModel
 import com.llm.data.models.RepoResult
 import com.llm.data.network.Apis
@@ -22,12 +22,14 @@ import javax.inject.Singleton
 @Singleton
 open class DeliveryRepo @Inject constructor(
     @NotNull private val api: Apis,
-    private val dao: DeliveryDao,
+    private val db:AppDB,
     private val utils: Utils,
     @SingleThreadExecutor private val executor: Executor
 ) : IDeliveryRepo {
 
+
     override fun getDeliveryItems(): RepoResult {
+        val dao = db.deliveryDao()
         val dataSourceFactory = dao.get()
         val callback = CustomBoundaryCallback(dao, executor, :: getDeliveries)
         val networkErr = callback.networkState
@@ -108,8 +110,12 @@ open class DeliveryRepo @Inject constructor(
 
     private fun refreshDB(data: List<DeliveryItemDataModel>) {
         executor.execute {
-            dao.clearTable()
-            dao.insertAll(data)
+            db.runInTransaction {
+                val dao = db.deliveryDao()
+                dao.clearTable()
+                dao.insertAll(data)
+            }
+
         }
     }
 
