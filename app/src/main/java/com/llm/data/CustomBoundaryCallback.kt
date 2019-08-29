@@ -10,7 +10,7 @@ import com.llm.data.network.NetworkState
 import com.llm.data.repository.DeliveryRepo.Companion.NETWORK_PAGE_SIZE
 import java.util.concurrent.Executor
 
-
+/**BoundryCallback to let know when data have been finished in data source*/
 class CustomBoundaryCallback constructor(
     private val dao: DeliveryDao,
     private val executor: Executor, val getDeliveries: (
@@ -63,11 +63,11 @@ class CustomBoundaryCallback constructor(
 
         })
     }
-
+    /*Retry if previous network call has been failed*/
     fun retryFailedReq(){
         getData(mCurrentOffset)
     }
-
+/*save new data in db*/
     private fun saveDataInDB(data: List<DeliveryItemDataModel>) {
         executor.execute {
             dao.insertAll(data)
